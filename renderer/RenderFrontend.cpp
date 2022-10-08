@@ -21,6 +21,11 @@ void RenderFrontend::Shutdown()
 {
 }
 
+void RenderFrontend::SetBackend( Render::IBackend* renderBackend )
+{
+	
+}
+
 Render::IBackend* RenderFrontend::GetBackend() const
 {
 	return nullptr;

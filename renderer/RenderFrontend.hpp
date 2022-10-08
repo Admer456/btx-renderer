@@ -14,6 +14,7 @@ public:
 		return "BTX Test Renderer";
 	}
 
+	void SetBackend( Render::IBackend* renderBackend ) override;
 	Render::IBackend* GetBackend() const override;
 
 	void RenderView( const Render::IView* view ) override;
