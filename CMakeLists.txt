@@ -13,9 +13,9 @@ set( BTXR_ROOT ${CMAKE_CURRENT_SOURCE_DIR} )
 set( BTXR_BIN_DIR ${BTX_RENDERER_ROOT}/bin )
 
 set( BTXR_SOURCES
-	${BTXR_ROOT}/src/Precompiled.hpp
-	${BTXR_ROOT}/src/RenderFrontend.hpp
-	${BTXR_ROOT}/src/RenderFrontend.cpp )
+	${BTXR_ROOT}/renderer/Precompiled.hpp
+	${BTXR_ROOT}/renderer/RenderFrontend.hpp
+	${BTXR_ROOT}/renderer/RenderFrontend.cpp )
 
 add_library( BtxRenderer SHARED ${BTXR_SOURCES} )
 
