@@ -17,6 +17,7 @@ set( BTXR_SOURCES
 	${BTXR_ROOT}/renderer/RenderFrontend.hpp
 	${BTXR_ROOT}/renderer/RenderFrontend.cpp )
 
-add_library( BtxRenderer SHARED ${BTXR_SOURCES} )
+add_library( BtxRenderer SHARED
+	${BTXR_SOURCES} )
 
 target_link_libraries( BtxRenderer BtxCommon )
