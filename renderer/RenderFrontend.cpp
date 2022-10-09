@@ -8,8 +8,7 @@ static PluginRegistry Registry( EngineVersion );
 
 ADM_API PluginRegistry* GetPluginRegistry()
 {
-	Registry.Register<RenderFrontend>();
-	return &Registry;
+	return &Registry.Register<RenderFrontend>();
 }
 
 bool RenderFrontend::Init( const EngineAPI& api )
@@ -29,6 +28,15 @@ void RenderFrontend::Shutdown()
 {
 	Console->Print( "RenderFrontend::Shutdown" );
 
+	batches.clear();
+	entities.clear();
+	lights.clear();
+	textures.clear();
+	views.clear();
+	volumes.clear();
+
+	backend = nullptr;
+
 	Core = nullptr;
 	Console = nullptr;
 	FileSystem = nullptr;
@@ -36,9 +44,16 @@ void RenderFrontend::Shutdown()
 	MaterialManager = nullptr;
 }
 
-void RenderFrontend::SetBackend( IBackend* renderBackend )
+bool RenderFrontend::PostInit( IBackend* renderBackend, IWindow* mainWindow )
 {
 	backend = renderBackend;
+
+	return true;
+}
+
+void RenderFrontend::Update()
+{
+
 }
 
 IBackend* RenderFrontend::GetBackend() const

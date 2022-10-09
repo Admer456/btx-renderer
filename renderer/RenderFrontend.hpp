@@ -5,7 +5,7 @@
 
 class RenderFrontend : public IRenderFrontend
 {
-public:
+public: // Plugin API
 	bool					Init( const EngineAPI& api ) override;
 	void					Shutdown() override;
 
@@ -14,7 +14,9 @@ public:
 		return "BTX Test Renderer";
 	}
 
-	void					SetBackend( IBackend* renderBackend ) override;
+public: // Render frontend API
+	bool 					PostInit( Render::IBackend* renderBackend, IWindow* mainWindow ) override;
+	void					Update() override;
 	IBackend*				GetBackend() const override;
 
 	void					RenderView( const IView* view ) override;
@@ -49,6 +51,10 @@ public:
 	bool					DestroyVolume( IVolume* volume ) override;
 	const Vector<IVolume*>& GetVolumes() const override;
 
+private: // Internals
+
+
+
 private:
 	Vector<IBatch*>			batches{};
 	Vector<IEntity*>		entities{};
@@ -57,5 +63,6 @@ private:
 	Vector<IView*>			views{};
 	Vector<IVolume*>		volumes{};
 
+	IWindow*				window{ nullptr };
 	IBackend*				backend{ nullptr };
 };
