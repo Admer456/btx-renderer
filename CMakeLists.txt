@@ -13,9 +13,21 @@ set( BTXR_ROOT ${CMAKE_CURRENT_SOURCE_DIR} )
 set( BTXR_BIN_DIR ${BTX_RENDERER_ROOT}/bin )
 
 set( BTXR_SOURCES
+	${BTXR_ROOT}/renderer/Batch.hpp
+	${BTXR_ROOT}/renderer/Batch.cpp
+	${BTXR_ROOT}/renderer/Entity.hpp
+	${BTXR_ROOT}/renderer/Entity.cpp
+	${BTXR_ROOT}/renderer/Light.hpp
+	${BTXR_ROOT}/renderer/Light.cpp
 	${BTXR_ROOT}/renderer/Precompiled.hpp
 	${BTXR_ROOT}/renderer/RenderFrontend.hpp
-	${BTXR_ROOT}/renderer/RenderFrontend.cpp )
+	${BTXR_ROOT}/renderer/RenderFrontend.cpp
+	${BTXR_ROOT}/renderer/Texture.hpp
+	${BTXR_ROOT}/renderer/Texture.cpp
+	${BTXR_ROOT}/renderer/View.hpp
+	${BTXR_ROOT}/renderer/View.cpp
+	${BTXR_ROOT}/renderer/Volume.hpp
+	${BTXR_ROOT}/renderer/Volume.cpp )
 
 source_group( TREE ${BTXR_ROOT} FILES ${BTXR_SOURCES} )
 
