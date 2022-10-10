@@ -15,17 +15,17 @@ public: // Plugin API
 	}
 
 public: // Render frontend API
-	bool 					PostInit( Render::IBackend* renderBackend, IWindow* mainWindow ) override;
+	bool 					PostInit( IBackend* renderBackend, IWindow* mainWindow ) override;
 	void					Update() override;
 	IBackend*				GetBackend() const override;
 
 	void					RenderView( const IView* view ) override;
 	
-	void					DebugLine( adm::Vec3 start, adm::Vec3 end, adm::Vec3 colour, float life, bool depthTest ) override;
-	void					DebugRay( adm::Vec3 start, adm::Vec3 direction, float length, bool withArrowhead, adm::Vec3 colour, float life, bool depthTest ) override;
-	void					DebugBox( adm::Vec3 min, adm::Vec3 max, adm::Vec3 colour, float life, bool depthTest ) override;
-	void					DebugCube( adm::Vec3 position, float extents, adm::Vec3 colour, float life, bool depthTest ) override;
-	void					DebugSphere( adm::Vec3 position, float extents, adm::Vec3 colour, float life, bool depthTest ) override;
+	void					DebugLine( Vec3 start, Vec3 end, Vec3 colour, float life, bool depthTest ) override;
+	void					DebugRay( Vec3 start, Vec3 direction, float length, bool withArrowhead, Vec3 colour, float life, bool depthTest ) override;
+	void					DebugBox( Vec3 min, Vec3 max, Vec3 colour, float life, bool depthTest ) override;
+	void					DebugCube( Vec3 position, float extents, Vec3 colour, float life, bool depthTest ) override;
+	void					DebugSphere( Vec3 position, float extents, Vec3 colour, float life, bool depthTest ) override;
 
 	IBatch*					CreateBatch( const BatchDesc& desc ) override;
 	bool					DestroyBatch( IBatch* batch ) override;
