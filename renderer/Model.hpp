@@ -14,7 +14,7 @@ struct VertexMapKey
 		return face + (1U << (16U + static_cast<size_t>(vertexAttribute)));
 	}
 	// Required for hashing
-	bool operator==( const VertexMapKey& other )
+	bool operator==( const VertexMapKey& other ) const noexcept
 	{
 		return face == other.face && vertexAttribute == other.vertexAttribute;
 	}
