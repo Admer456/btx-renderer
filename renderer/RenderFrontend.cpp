@@ -34,6 +34,7 @@ void RenderFrontend::Shutdown()
 	textures.clear();
 	views.clear();
 	volumes.clear();
+	models.clear();
 
 	backend = nullptr;
 
@@ -47,6 +48,13 @@ void RenderFrontend::Shutdown()
 bool RenderFrontend::PostInit( IBackend* renderBackend, IWindow* mainWindow )
 {
 	backend = renderBackend;
+	window = mainWindow;
+
+	if ( !CreateMainFramebuffer() )
+	{
+		Console->Error( "RenderFrontend::PostInit: Failed to create main framebuffer" );
+		return false;
+	}
 
 	return true;
 }
@@ -99,9 +107,19 @@ bool RenderFrontend::DestroyBatch( IBatch* batch )
 	return false;
 }
 
-const Vector<IBatch*>& RenderFrontend::GetBatches() const
+size_t RenderFrontend::GetNumBatches() const
 {
-	return batches;
+	return batches.size();
+}
+
+IBatch* RenderFrontend::GetBatch( uint32_t index )
+{
+	if ( index >= GetNumBatches() )
+	{
+		return nullptr;
+	}
+
+	return batches.at( index ).get();
 }
 
 IEntity* RenderFrontend::CreateEntity( const EntityDesc& desc )
@@ -114,9 +132,19 @@ bool RenderFrontend::DestroyEntity( IEntity* entity )
 	return false;
 }
 
-const Vector<IEntity*>& RenderFrontend::GetEntities() const
+size_t RenderFrontend::GetNumEntities() const
 {
-	return entities;
+	return entities.size();
+}
+
+IEntity* RenderFrontend::GetEntity( uint32_t index )
+{
+	if ( index >= GetNumEntities() )
+	{
+		return nullptr;
+	}
+
+	return entities.at( index ).get();
 }
 
 ILight* RenderFrontend::CreateLight( const LightDesc& desc )
@@ -129,9 +157,19 @@ bool RenderFrontend::DestroyLight( ILight* light )
 	return false;
 }
 
-const Vector<ILight*>& RenderFrontend::GetLights() const
+size_t RenderFrontend::GetNumLights() const
 {
-	return lights;
+	return lights.size();
+}
+
+ILight* RenderFrontend::GetLight( uint32_t index )
+{
+	if ( index >= GetNumLights() )
+	{
+		return nullptr;
+	}
+
+	return lights.at( index ).get();
 }
 
 ITexture* RenderFrontend::CreateTexture( const TextureDesc& desc )
@@ -144,9 +182,19 @@ bool RenderFrontend::DestroyTexture( ITexture* view )
 	return false;
 }
 
-const Vector<ITexture*>& RenderFrontend::GetTextures() const
+size_t RenderFrontend::GetNumTextures() const
 {
-	return textures;
+	return textures.size();
+}
+
+ITexture* RenderFrontend::GetTexture( uint32_t index )
+{
+	if ( index >= GetNumTextures() )
+	{
+		return nullptr;
+	}
+
+	return textures.at( index ).get();
 }
 
 IView* RenderFrontend::CreateView( const ViewDesc& desc )
@@ -159,9 +207,19 @@ bool RenderFrontend::DestroyView( IView* view )
 	return false;
 }
 
-const Vector<IView*>& RenderFrontend::GetViews() const
+size_t RenderFrontend::GetNumViews() const
 {
-	return views;
+	return views.size();
+}
+
+IView* RenderFrontend::GetView( uint32_t index )
+{
+	if ( index >= GetNumViews() )
+	{
+		return nullptr;
+	}
+
+	return views.at( index ).get();
 }
 
 IVolume* RenderFrontend::CreateVolume( const VolumeDesc& desc )
@@ -174,7 +232,47 @@ bool RenderFrontend::DestroyVolume( IVolume* volume )
 	return false;
 }
 
-const Vector<IVolume*>& RenderFrontend::GetVolumes() const
+size_t RenderFrontend::GetNumVolumes() const
 {
-	return volumes;
+	return volumes.size();
+}
+
+IVolume* RenderFrontend::GetVolume( uint32_t index )
+{
+	if ( index >= GetNumVolumes() )
+	{
+		return nullptr;
+	}
+
+	return volumes.at( index ).get();
+}
+
+IModel* RenderFrontend::CreateModel( const Assets::IModel* modelAsset )
+{
+	return nullptr;
+}
+
+bool RenderFrontend::DestroyModel( IModel* Model )
+{
+	return false;
+}
+
+size_t RenderFrontend::GetNumModels() const
+{
+	return models.size();
+}
+
+IModel* RenderFrontend::GetModel( uint32_t index )
+{
+	if ( index >= GetNumModels() )
+	{
+		return nullptr;
+	}
+
+	return models.at( index ).get();
+}
+
+bool RenderFrontend::CreateMainFramebuffer()
+{
+	return false;
 }

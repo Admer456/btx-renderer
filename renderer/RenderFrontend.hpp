@@ -29,40 +29,56 @@ public: // Render frontend API
 
 	IBatch*					CreateBatch( const BatchDesc& desc ) override;
 	bool					DestroyBatch( IBatch* batch ) override;
-	const Vector<IBatch*>&	GetBatches() const override;
+	size_t					GetNumBatches() const override;
+	IBatch*					GetBatch( uint32_t index ) override;
 
 	IEntity*				CreateEntity( const EntityDesc& desc ) override;
 	bool					DestroyEntity( IEntity* entity ) override;
-	const Vector<IEntity*>& GetEntities() const override;
+	size_t					GetNumEntities() const override;
+	IEntity*				GetEntity( uint32_t index ) override;
 
 	ILight*					CreateLight( const LightDesc& desc ) override;
 	bool					DestroyLight( ILight* light ) override;
-	const Vector<ILight*>&	GetLights() const override;
+	size_t					GetNumLights() const override;
+	ILight*					GetLight( uint32_t index ) override;
 
 	ITexture*				CreateTexture( const TextureDesc& desc ) override;
 	bool 					DestroyTexture( ITexture* view ) override;
-	const Vector<ITexture*>& GetTextures() const override;
+	size_t					GetNumTextures() const override;
+	ITexture*				GetTexture( uint32_t index ) override;
 
 	IView*					CreateView( const ViewDesc& desc ) override;
 	bool					DestroyView( IView* view ) override;
-	const Vector<IView*>&	GetViews() const override;
+	size_t					GetNumViews() const override;
+	IView*					GetView( uint32_t index ) override;
 
 	IVolume*				CreateVolume( const VolumeDesc& desc ) override;
 	bool					DestroyVolume( IVolume* volume ) override;
-	const Vector<IVolume*>& GetVolumes() const override;
+	size_t					GetNumVolumes() const override;
+	IVolume*				GetVolume( uint32_t index ) override;
+
+	IModel*					CreateModel( const Assets::IModel* modelAsset ) override;
+	bool					DestroyModel( IModel* model ) override;
+	size_t					GetNumModels() const override;
+	IModel*					GetModel( uint32_t index ) override;
 
 private: // Internals
 
-
+	bool					CreateMainFramebuffer();
 
 private:
-	Vector<IBatch*>			batches{};
-	Vector<IEntity*>		entities{};
-	Vector<ILight*>			lights{};
-	Vector<ITexture*>		textures{};
-	Vector<IView*>			views{};
-	Vector<IVolume*>		volumes{};
+	Vector<UniquePtr<IBatch>>	batches{};
+	Vector<UniquePtr<IEntity>>	entities{};
+	Vector<UniquePtr<ILight>>	lights{};
+	Vector<UniquePtr<ITexture>>	textures{};
+	Vector<UniquePtr<IView>>	views{};
+	Vector<UniquePtr<IVolume>>	volumes{};
+	Vector<UniquePtr<IModel>>	models{};
 
 	IWindow*				window{ nullptr };
 	IBackend*				backend{ nullptr };
+
+	nvrhi::ITexture*		mainFramebufferColour{ nullptr };
+	nvrhi::ITexture*		mainFramebufferDepth{ nullptr };
+	nvrhi::IFramebuffer*	mainFramebuffer{ nullptr };
 };
