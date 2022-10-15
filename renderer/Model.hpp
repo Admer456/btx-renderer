@@ -34,10 +34,8 @@ using VertexBufferMap = Map<VertexMapKey, nvrhi::BufferHandle>;
 class Model final : public IModel
 {
 public:
-
-public:
 	Model() = default;
-	Model( Assets::IModel* asset, Vector<nvrhi::BufferHandle>&& indexBuffers, VertexBufferMap&& vertexBuffers );
+	Model( const Assets::IModel* asset, Vector<nvrhi::BufferHandle>&& indexBuffers, VertexBufferMap&& vertexBuffers );
 	~Model() = default;
 	
 	StringView GetName() const override;
@@ -51,5 +49,5 @@ public:
 private:
 	Vector<nvrhi::BufferHandle> indexBuffers{};
 	VertexBufferMap vertexBuffers{};
-	Assets::IModel* modelAsset{ nullptr };
+	const Assets::IModel* modelAsset{ nullptr };
 };

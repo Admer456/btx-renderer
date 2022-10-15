@@ -4,7 +4,7 @@
 #include "Precompiled.hpp"
 #include "Model.hpp"
 
-Model::Model( Assets::IModel* asset, Vector<nvrhi::BufferHandle>&& indexBuffers, VertexBufferMap&& vertexBuffers )
+Model::Model( const Assets::IModel* asset, Vector<nvrhi::BufferHandle>&& indexBuffers, VertexBufferMap&& vertexBuffers )
 {
 	modelAsset = asset;
 	this->indexBuffers = std::move( indexBuffers );
