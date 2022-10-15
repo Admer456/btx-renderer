@@ -19,6 +19,8 @@ set( BTXR_SOURCES
 	${BTXR_ROOT}/renderer/Entity.cpp
 	${BTXR_ROOT}/renderer/Light.hpp
 	${BTXR_ROOT}/renderer/Light.cpp
+	${BTXR_ROOT}/renderer/Model.hpp
+	${BTXR_ROOT}/renderer/Model.cpp
 	${BTXR_ROOT}/renderer/Precompiled.hpp
 	${BTXR_ROOT}/renderer/RenderFrontend.hpp
 	${BTXR_ROOT}/renderer/RenderFrontend.cpp
