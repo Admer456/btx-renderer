@@ -78,7 +78,7 @@ private:
 	IWindow*				window{ nullptr };
 	IBackend*				backend{ nullptr };
 
-	nvrhi::ITexture*		mainFramebufferColour{ nullptr };
-	nvrhi::ITexture*		mainFramebufferDepth{ nullptr };
-	nvrhi::IFramebuffer*	mainFramebuffer{ nullptr };
+	nvrhi::TextureHandle	mainFramebufferColour{ nullptr };
+	nvrhi::TextureHandle	mainFramebufferDepth{ nullptr };
+	nvrhi::FramebufferHandle mainFramebuffer{ nullptr };
 };
