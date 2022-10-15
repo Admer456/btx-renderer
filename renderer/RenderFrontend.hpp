@@ -64,6 +64,7 @@ public: // Render frontend API
 
 private: // Internals
 
+	// RenderFrontend.Init.cpp
 	bool					CreateMainFramebuffer();
 
 private:

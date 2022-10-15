@@ -271,8 +271,3 @@ IModel* RenderFrontend::GetModel( uint32_t index )
 
 	return models.at( index ).get();
 }
-
-bool RenderFrontend::CreateMainFramebuffer()
-{
-	return false;
-}
