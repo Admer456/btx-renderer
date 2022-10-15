@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "Model.hpp"
+
 class RenderFrontend : public IRenderFrontend
 {
 public: // Plugin API
@@ -65,7 +67,14 @@ public: // Render frontend API
 private: // Internals
 
 	// RenderFrontend.Init.cpp
+	bool					CreateCommandLists();
 	bool					CreateMainFramebuffer();
+
+	// RenderFrontend.Model.cpp
+	bool					ValidateModelAsset( const Assets::IModel* modelAsset );
+	nvrhi::BufferHandle		CreateIndexBuffer( Vector<uint32_t> indices );
+	bool					CreateBuffersFromVertexData( uint32_t face, const Assets::RenderData::VertexData& data, Vector<nvrhi::BufferHandle>& outIndexBuffers, VertexBufferMap& outVertexBuffers );
+	IModel*					BuildModelFromAsset( const Assets::IModel* modelAsset );
 
 private:
 	Vector<UniquePtr<IBatch>>	batches{};
@@ -82,4 +91,9 @@ private:
 	nvrhi::TextureHandle	mainFramebufferColour{ nullptr };
 	nvrhi::TextureHandle	mainFramebufferDepth{ nullptr };
 	nvrhi::FramebufferHandle mainFramebuffer{ nullptr };
+
+	nvrhi::CommandListHandle transferCommands{};
+	// Later we will have multiple render commandlists,
+	// so we can do multithreaded rendering
+	nvrhi::CommandListHandle renderCommands{};
 };

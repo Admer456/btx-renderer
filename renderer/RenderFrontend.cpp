@@ -249,12 +249,44 @@ IVolume* RenderFrontend::GetVolume( uint32_t index )
 
 IModel* RenderFrontend::CreateModel( const Assets::IModel* modelAsset )
 {
-	return nullptr;
+	if ( nullptr == modelAsset )
+	{
+		Console->Warning( "RenderFrontend::CreateModel: tried creating a rendermodel from a non-existing model" );
+		return nullptr;
+	}
+
+	if ( !ValidateModelAsset( modelAsset ) )
+	{
+		Console->Warning( format( "RenderFrontend::CreateModel: model '%s' has invalid data", modelAsset->GetName().data() ) );
+		return nullptr;
+	}
+
+	IModel* model = BuildModelFromAsset( modelAsset );
+	if ( nullptr != model )
+	{
+		models.emplace_back( model );
+	}
+	return model;
 }
 
-bool RenderFrontend::DestroyModel( IModel* Model )
+bool RenderFrontend::DestroyModel( IModel* model )
 {
-	return false;
+	if ( nullptr == model )
+	{
+		Console->Warning( "RenderFrontend::DestroyModel: tried destroying a non-existing model" );
+		return false;
+	}
+
+	auto it = FindIterator( models, model );
+	if ( it == models.end() )
+	{
+		Console->Warning( "RenderFrontend::DestroyModel: tried destroying an unregistered model" );
+		return false;
+	}
+
+	models.erase( it );
+
+	return true;
 }
 
 size_t RenderFrontend::GetNumModels() const

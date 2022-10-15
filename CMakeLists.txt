@@ -25,6 +25,7 @@ set( BTXR_SOURCES
 	${BTXR_ROOT}/renderer/RenderFrontend.hpp
 	${BTXR_ROOT}/renderer/RenderFrontend.cpp
 	${BTXR_ROOT}/renderer/RenderFrontend.Init.cpp
+	${BTXR_ROOT}/renderer/RenderFrontend.Model.cpp
 	${BTXR_ROOT}/renderer/Texture.hpp
 	${BTXR_ROOT}/renderer/Texture.cpp
 	${BTXR_ROOT}/renderer/View.hpp
