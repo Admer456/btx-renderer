@@ -38,4 +38,4 @@ source_group( TREE ${BTXR_ROOT} FILES ${BTXR_SOURCES} )
 add_library( BtxRenderer SHARED
 	${BTXR_SOURCES} )
 
-target_link_libraries( BtxRenderer BtxCommon )
+target_link_libraries( BtxRenderer BtxCommon nvrhi )
