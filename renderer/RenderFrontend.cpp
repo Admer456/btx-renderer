@@ -252,6 +252,11 @@ IModel* RenderFrontend::CreateModel( const Assets::IModel* modelAsset )
 	{
 		models.emplace_back( model );
 	}
+	else
+	{
+		Console->Warning( format( "RenderFrontend::CreateModel: model '%s' failed to upload to the GPU", modelAsset->GetName().data() ) );
+	}
+
 	return model;
 }
 
