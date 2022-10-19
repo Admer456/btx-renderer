@@ -4,6 +4,26 @@
 #include "Precompiled.hpp"
 #include "RenderFrontend.hpp"
 
+bool RenderFrontend::PostInit( IBackend* renderBackend, IWindow* mainWindow )
+{
+	backend = renderBackend;
+	window = mainWindow;
+
+	if ( !CreateCommandLists() )
+	{
+		Console->Error( "RenderFrontend::PostInit: Failed to create commandlists" );
+		return false;
+	}
+
+	if ( !CreateMainFramebuffer() )
+	{
+		Console->Error( "RenderFrontend::PostInit: Failed to create main framebuffer" );
+		return false;
+	}
+
+	return true;
+}
+
 bool RenderFrontend::CreateCommandLists()
 {
 	auto renderParams = nvrhi::CommandListParameters()

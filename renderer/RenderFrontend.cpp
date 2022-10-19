@@ -45,20 +45,6 @@ void RenderFrontend::Shutdown()
 	MaterialManager = nullptr;
 }
 
-bool RenderFrontend::PostInit( IBackend* renderBackend, IWindow* mainWindow )
-{
-	backend = renderBackend;
-	window = mainWindow;
-
-	if ( !CreateMainFramebuffer() )
-	{
-		Console->Error( "RenderFrontend::PostInit: Failed to create main framebuffer" );
-		return false;
-	}
-
-	return true;
-}
-
 void RenderFrontend::Update()
 {
 
