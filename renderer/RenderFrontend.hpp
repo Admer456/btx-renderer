@@ -89,6 +89,7 @@ private:
 	IWindow*				window{ nullptr };
 	IBackend*				backend{ nullptr };
 
+	nvrhi::SamplerHandle	screenSampler{ nullptr };
 	nvrhi::TextureHandle	mainFramebufferColour{ nullptr };
 	nvrhi::TextureHandle	mainFramebufferDepth{ nullptr };
 	nvrhi::FramebufferHandle mainFramebuffer{ nullptr };
