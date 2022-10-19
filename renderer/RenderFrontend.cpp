@@ -3,6 +3,8 @@
 
 #include "Precompiled.hpp"
 #include "RenderFrontend.hpp"
+#include "Entity.hpp"
+#include "View.hpp"
 
 static PluginRegistry Registry( EngineVersion );
 
@@ -57,7 +59,7 @@ IBackend* RenderFrontend::GetBackend() const
 
 void RenderFrontend::RenderView( const IView* view )
 {
-
+	// TODO: Implement
 }
 
 void RenderFrontend::DebugLine( adm::Vec3 start, adm::Vec3 end, adm::Vec3 colour, float life, bool depthTest )
@@ -110,12 +112,46 @@ IBatch* RenderFrontend::GetBatch( uint32_t index )
 
 IEntity* RenderFrontend::CreateEntity( const EntityDesc& desc )
 {
-	return nullptr;
+	if ( nullptr == desc.model )
+	{
+		Console->Warning( "RenderFrontend::CreateEntity: tried creating an entity with no model" );
+		return false;
+	}
+
+	if ( desc.numBones > 0 && nullptr == desc.bones )
+	{
+		Console->Warning( "RenderFrontend::CreateEntity: you can't have numBones without an actual reference to a bone buffer" );
+		return false;
+	}
+
+	auto modelIt = FindIterator( models, desc.model );
+	if ( modelIt == models.end() )
+	{
+		Console->Warning( "RenderFrontend::CreateEntity: tried creating an entity with an unregistered model" );
+		return false;
+	}
+
+	return entities.emplace_back( new Entity( desc ) ).get();
 }
 
 bool RenderFrontend::DestroyEntity( IEntity* entity )
 {
-	return false;
+	if ( nullptr == entity )
+	{
+		Console->Warning( "RenderFrontend::DestroyEntity: tried destroying a non-existing entity" );
+		return false;
+	}
+
+	auto it = FindIterator( entities, entity );
+	if ( it == entities.end() )
+	{
+		Console->Warning( "RenderFrontend::DestroyEntity: tried destroying an unregistered entity" );
+		return false;
+	}
+
+	entities.erase( it );
+
+	return true;
 }
 
 size_t RenderFrontend::GetNumEntities() const
@@ -185,12 +221,27 @@ ITexture* RenderFrontend::GetTexture( uint32_t index )
 
 IView* RenderFrontend::CreateView( const ViewDesc& desc )
 {
-	return nullptr;
+	return views.emplace_back( new View( desc ) ).get();
 }
 
 bool RenderFrontend::DestroyView( IView* view )
 {
-	return false;
+	if ( nullptr == view )
+	{
+		Console->Warning( "RenderFrontend::DestroyView: tried destroying a non-existing view" );
+		return false;
+	}
+
+	auto it = FindIterator( views, view );
+	if ( it == views.end() )
+	{
+		Console->Warning( "RenderFrontend::DestroyView: tried destroying an unregistered view" );
+		return false;
+	}
+
+	views.erase( it );
+
+	return true;
 }
 
 size_t RenderFrontend::GetNumViews() const
