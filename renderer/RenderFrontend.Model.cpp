@@ -60,33 +60,113 @@ nvrhi::BufferHandle RenderFrontend::CreateIndexBuffer( Vector<uint32_t> indices 
 
 	auto desc = nvrhi::BufferDesc()
 		.setByteSize( indices.size() * sizeof( uint32_t ) )
-		.setFormat( nvrhi::Format::R32_UINT )
+		//.setFormat( nvrhi::Format::R32_UINT )
 		.setIsIndexBuffer( true )
 		.setInitialState( nvrhi::ResourceStates::IndexBuffer );
 
+	indexBuffer = backend->createBuffer( desc );
+	if ( nullptr == indexBuffer )
+	{
+		return nullptr;
+	}
 
-	// TODO: Create the index buffer and then figure out **when** to populate it
+	transferCommands->open();
+	transferCommands->beginTrackingBufferState( indexBuffer, nvrhi::ResourceStates::CopyDest );
+	transferCommands->writeBuffer( indexBuffer, indices.data(), indices.size() * sizeof( uint32_t ) );
+	transferCommands->setPermanentBufferState( indexBuffer, nvrhi::ResourceStates::IndexBuffer );
+	transferCommands->close();
+
+	backend->executeCommandList( transferCommands, nvrhi::CommandQueue::Copy );
+
+	// TODO: Figure out **when** to populate the buffers
 	// Should we:
 	// 1) Open a commandlist here, record everything that's needed and execute immediately?
 	// 2) Open a commandlist here, record, execute later?
 	// 3) Submit some sorta request into a queue, to do #1 sometime later?
-	// Anyway, I must sleep now, will think about this tomorrow
-	//return indexBuffer;
-	return nullptr;
+	// Right now, we're doing #1 because it's the most naive & simple one
+	return indexBuffer;
 }
 
-bool RenderFrontend::CreateBuffersFromVertexData( uint32_t face, const Assets::RenderData::VertexData& data, Vector<nvrhi::BufferHandle>& outIndexBuffers, VertexBufferMap& outVertexBuffers )
+static const char* VertexSegmentToString( Assets::RenderData::VertexAttributeType segmentType )
 {
-	nvrhi::BufferHandle indexBufferHandle = CreateIndexBuffer( data.vertexIndices );
-	// The render backend will report errors in this situation
-	if ( nullptr == indexBufferHandle )
+	using Assets::RenderData::VertexAttributeType;
+
+	switch ( segmentType )
+	{
+	case VertexAttributeType::Position: return "Position";
+	case VertexAttributeType::Normal: return "Normal";
+	case VertexAttributeType::TangentAndBitangent: return "TangentAndBitangent";
+	case VertexAttributeType::Uv1: return "Uv1";
+	case VertexAttributeType::Uv2: return "Uv2";
+	case VertexAttributeType::Uv3: return "Uv3";
+	case VertexAttributeType::Uv4: return "Uv4";
+	case VertexAttributeType::Colour1: return "Colour1";
+	case VertexAttributeType::Colour2: return "Colour2";
+	case VertexAttributeType::Colour3: return "Colour3";
+	case VertexAttributeType::Colour4: return "Colour4";
+	case VertexAttributeType::BoneWeights: return "BoneWeights";
+	case VertexAttributeType::BoneIndices: return "BoneIndices";
+	}
+
+	return "UNKNOWN";
+}
+
+bool RenderFrontend::CreateVertexBuffer( uint32_t face, const Assets::RenderData::VertexDataSegment& segment, VertexBufferMap& outVertexBuffers )
+{
+	const VertexMapKey key = { face, segment.type };
+
+	auto desc = nvrhi::BufferDesc()
+		.setByteSize( segment.rawData.size() )
+		.setIsVertexBuffer( true )
+		.setInitialState( nvrhi::ResourceStates::VertexBuffer );
+
+	nvrhi::BufferHandle vertexBuffer = backend->createBuffer( desc );
+
+	if ( nullptr == vertexBuffer )
 	{
 		return false;
 	}
+
+	transferCommands->open();
+	transferCommands->beginTrackingBufferState( vertexBuffer, nvrhi::ResourceStates::CopyDest );
+	transferCommands->writeBuffer( vertexBuffer, segment.rawData.data(), segment.rawData.size() );
+	transferCommands->setPermanentBufferState( vertexBuffer, nvrhi::ResourceStates::VertexBuffer );
+	transferCommands->close();
+
+	backend->executeCommandList( transferCommands, nvrhi::CommandQueue::Copy );
+
+	// Finally insert the thing
+	outVertexBuffers[key] = vertexBuffer;
+
+	return true;
+}
+
+bool RenderFrontend::CreateBuffersFromVertexData( uint32_t face, const Assets::RenderData::VertexData& data,
+	Vector<nvrhi::BufferHandle>& outIndexBuffers, VertexBufferMap& outVertexBuffers )
+{
+	// The render backend will report errors in this situation
+	nvrhi::BufferHandle indexBufferHandle = CreateIndexBuffer( data.vertexIndices );
+	if ( nullptr == indexBufferHandle )
+	{
+		Console->Error( format( "Failed to create index buffer (face %u)", face ) );
+		return false;
+	}
+
 	outIndexBuffers.push_back( std::move( indexBufferHandle ) );
 
-	// TODO: create vertex buffers
-	return false;
+	// Build different vertex buffer segments, e.g. one buffer for positions, one for normals etc.
+	bool failedCreatingVertexBuffers = false;
+	for ( const auto& segment : data.vertexData )
+	{
+		if ( !CreateVertexBuffer( face, segment, outVertexBuffers ) )
+		{
+			Console->Error( format( "Failed to create vertex buffer (face %u, segment '%s')",
+				face, VertexSegmentToString( segment.type ) ) );
+			failedCreatingVertexBuffers = true;
+		}
+	}
+
+	return !failedCreatingVertexBuffers;
 }
 
 IModel* RenderFrontend::BuildModelFromAsset( const Assets::IModel* modelAsset )
