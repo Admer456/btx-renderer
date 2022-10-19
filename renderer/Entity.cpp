@@ -4,6 +4,11 @@
 #include "Precompiled.hpp"
 #include "Entity.hpp"
 
+Entity::Entity( const EntityDesc& desc )
+	: desc( desc )
+{
+}
+
 EntityDesc& Entity::GetDesc()
 {
 	return desc;

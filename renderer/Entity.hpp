@@ -6,6 +6,8 @@
 class Entity final : public IEntity
 {
 public:
+	Entity( const EntityDesc& desc );
+
 	EntityDesc& GetDesc() override;
 	const EntityDesc& GetDesc() const override;
 private:
