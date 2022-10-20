@@ -62,7 +62,7 @@ nvrhi::BufferHandle RenderFrontend::CreateIndexBuffer( Vector<uint32_t> indices 
 		.setByteSize( indices.size() * sizeof( uint32_t ) )
 		//.setFormat( nvrhi::Format::R32_UINT )
 		.setIsIndexBuffer( true )
-		.setInitialState( nvrhi::ResourceStates::IndexBuffer );
+		.setInitialState( nvrhi::ResourceStates::CopyDest );
 
 	indexBuffer = backend->createBuffer( desc );
 	if ( nullptr == indexBuffer )
@@ -76,8 +76,8 @@ nvrhi::BufferHandle RenderFrontend::CreateIndexBuffer( Vector<uint32_t> indices 
 	transferCommands->setPermanentBufferState( indexBuffer, nvrhi::ResourceStates::IndexBuffer );
 	transferCommands->close();
 
-	backend->executeCommandList( transferCommands, nvrhi::CommandQueue::Copy );
-
+	backend->executeCommandList( transferCommands, nvrhi::CommandQueue::Graphics );
+	
 	// TODO: Figure out **when** to populate the buffers
 	// Should we:
 	// 1) Open a commandlist here, record everything that's needed and execute immediately?
@@ -118,7 +118,7 @@ bool RenderFrontend::CreateVertexBuffer( uint32_t face, const Assets::RenderData
 	auto desc = nvrhi::BufferDesc()
 		.setByteSize( segment.rawData.size() )
 		.setIsVertexBuffer( true )
-		.setInitialState( nvrhi::ResourceStates::VertexBuffer );
+		.setInitialState( nvrhi::ResourceStates::CopyDest );
 
 	nvrhi::BufferHandle vertexBuffer = backend->createBuffer( desc );
 
@@ -133,8 +133,8 @@ bool RenderFrontend::CreateVertexBuffer( uint32_t face, const Assets::RenderData
 	transferCommands->setPermanentBufferState( vertexBuffer, nvrhi::ResourceStates::VertexBuffer );
 	transferCommands->close();
 
-	backend->executeCommandList( transferCommands, nvrhi::CommandQueue::Copy );
-
+	backend->executeCommandList( transferCommands, nvrhi::CommandQueue::Graphics );
+	
 	// Finally insert the thing
 	outVertexBuffers[key] = vertexBuffer;
 

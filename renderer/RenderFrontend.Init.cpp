@@ -31,7 +31,7 @@ bool RenderFrontend::CreateCommandLists()
 		.setQueueType( nvrhi::CommandQueue::Graphics );
 
 	auto transferParams = nvrhi::CommandListParameters()
-		.setQueueType( nvrhi::CommandQueue::Copy );
+		.setQueueType( nvrhi::CommandQueue::Graphics );
 
 	renderCommands = backend->createCommandList( renderParams );
 	transferCommands = backend->createCommandList( transferParams );
