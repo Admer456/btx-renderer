@@ -7,7 +7,7 @@
 bool RenderFrontend::ValidateModelAsset( const Assets::IModel* modelAsset )
 {
 	const auto& data = modelAsset->GetModelData();
-	StringView name = modelAsset->GetName();
+	const StringView name = modelAsset->GetName();
 
 	if ( data.meshes.empty() )
 	{
@@ -185,7 +185,7 @@ IModel* RenderFrontend::BuildModelFromAsset( const Assets::IModel* modelAsset )
 			if ( !CreateBuffersFromVertexData( uint32_t( faceId ), face.data, indexBuffers, vertexBuffers ) )
 			{
 				Console->Warning( format( "RenderFrontend: failed to build vertex buffers for model '%', mesh '%s', face %i. Part(s) of the model will not be visible!",
-					modelAsset->GetName().data(), mesh.name.data() ) );
+					modelAsset->GetName().data(), mesh.name.data(), faceId ) );
 			}
 		}
 	}
