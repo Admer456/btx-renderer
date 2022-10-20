@@ -77,6 +77,14 @@ private: // Internals
 	bool					CreateBuffersFromVertexData( uint32_t face, const Assets::RenderData::VertexData& data, Vector<nvrhi::BufferHandle>& outIndexBuffers, VertexBufferMap& outVertexBuffers );
 	IModel*					BuildModelFromAsset( const Assets::IModel* modelAsset );
 
+	// RenderFrontend.Pipeline.cpp
+	Path					BuildShaderPath( nvrhi::ShaderType type, StringView shaderPath );
+	nvrhi::ShaderHandle		CreateShader( nvrhi::ShaderType type, StringView shaderPath );
+	bool					CreateShaderPair( StringView shaderPath, nvrhi::ShaderHandle& outVertexShader, nvrhi::ShaderHandle& outPixelShader );
+	nvrhi::ShaderHandle		CreateComputeShader( StringView shaderPath );
+	bool					CreateMainShaders();
+	bool					CreateMainGraphicsPipelines();
+
 private:
 	Vector<UniquePtr<IBatch>>	batches{};
 	Vector<UniquePtr<IEntity>>	entities{};
@@ -98,4 +106,14 @@ private:
 	// Later we will have multiple render commandlists,
 	// so we can do multithreaded rendering
 	nvrhi::CommandListHandle renderCommands{};
+
+	// The minimum needed to render a basic fullscreen quad
+	// 2D vector for positions, and another 2D vector for texture coords
+	nvrhi::InputLayoutHandle screenVertexLayout{ nullptr };
+	// 1 texture sampler, 1 colour attachment, 1 depth attachment
+	nvrhi::BindingLayoutHandle screenBindingLayout{ nullptr };
+	nvrhi::BindingSetHandle screenBindingSet{ nullptr };
+	nvrhi::ShaderHandle		screenVertexShader{ nullptr };
+	nvrhi::ShaderHandle		screenPixelShader{ nullptr };
+	nvrhi::GraphicsPipelineHandle screenPipeline{ nullptr };
 };
