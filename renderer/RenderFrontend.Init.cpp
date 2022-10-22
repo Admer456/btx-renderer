@@ -23,6 +23,12 @@ bool RenderFrontend::PostInit( RenderBackend* renderBackend, IWindow* mainWindow
 		return false;
 	}
 
+	if ( !CreateMainGraphicsPipelines() )
+	{
+		Console->Error( "RenderFrontend::PostInit: Failed to create core graphics pipeline" );
+		return false;
+	}
+
 	return true;
 }
 
