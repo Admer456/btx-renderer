@@ -183,7 +183,17 @@ bool RenderFrontend::CreateMainGraphicsPipelines()
 		.setRenderState( renderState )
 		.addBindingLayout( screenBindingLayout );
 
-	screenPipeline = backend->createGraphicsPipeline( desc, mainFramebuffer );
+	// If you get errors in DX12 here, you are likely missing dxil.dll. You should have dxc.exe, dxcompiler.dll AND dxil.dll,
+	// as the 3rd one will perform shader validation/signature,
+	// and DX12 doesn't like unsigned shaders by default (you'd need to modify NVRHI to allow that)
+	screenPipeline = backend->createGraphicsPipeline( desc, backendManager->GetCurrentFramebuffer() );
 
+	if ( nullptr == screenPipeline )
+	{
+		Console->Error( "RenderFrontend: Failed to create screen pipeline" );
+		return false;
+	}
+
+	Console->DPrint( "RenderFrontend: Successfully created core graphics pipeline!", 1 );
 	return true;
 }
