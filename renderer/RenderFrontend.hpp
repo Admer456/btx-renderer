@@ -17,7 +17,7 @@ public: // Plugin API
 	}
 
 public: // Render frontend API
-	bool 					PostInit( IBackend* renderBackend, IWindow* mainWindow ) override;
+	bool 					PostInit( RenderBackend* renderBackend, IWindow* mainWindow ) override;
 	void					Update() override;
 	IBackend*				GetBackend() const override;
 
@@ -95,6 +95,7 @@ private:
 	Vector<UniquePtr<IModel>>	models{};
 
 	IWindow*				window{ nullptr };
+	RenderBackend*			backendManager{ nullptr };
 	IBackend*				backend{ nullptr };
 
 	nvrhi::SamplerHandle	screenSampler{ nullptr };

@@ -5,9 +5,10 @@
 #include "RenderFrontend.hpp"
 #include <nvrhi/utils.h>
 
-bool RenderFrontend::PostInit( IBackend* renderBackend, IWindow* mainWindow )
+bool RenderFrontend::PostInit( RenderBackend* renderBackend, IWindow* mainWindow )
 {
-	backend = renderBackend;
+	backendManager = renderBackend;
+	backend = backendManager->GetDevice();
 	window = mainWindow;
 
 	if ( !CreateCommandLists() )
