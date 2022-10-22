@@ -164,9 +164,11 @@ bool RenderFrontend::CreateMainGraphicsPipelines()
 		.setCullNone()
 		.setFillSolid();
 
+	// The "screen pipeline" doesn't have depth testing, it is merely
+	// drawing images onto the screen/backbuffer which has no depth attachment
 	auto depthStencilState = nvrhi::DepthStencilState()
-		.enableDepthTest()
-		.enableDepthWrite()
+		.disableDepthTest()
+		.disableDepthWrite()
 		.disableStencil()
 		.setDepthFunc( nvrhi::ComparisonFunc::Less );
 
