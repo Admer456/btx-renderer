@@ -91,6 +91,7 @@ nvrhi::ShaderHandle RenderFrontend::CreateShader( nvrhi::ShaderType type, String
 		return nullptr;
 	}
 
+	Console->DPrint( format( "RenderFrontend: Loaded shader '%s'!", fullShaderPathStr.c_str() ), 1);
 	return shader;
 }
 
@@ -159,6 +160,18 @@ bool RenderFrontend::CreateMainGraphicsPipelines()
 	};
 	nvrhi::utils::CreateBindingSetAndLayout( backend, nvrhi::ShaderType::Vertex | nvrhi::ShaderType::Pixel, 0,
 		setDesc, screenBindingLayout, screenBindingSet );
+
+	if ( nullptr == screenBindingLayout )
+	{
+		Console->Error( "RenderFrontend: Failed to create screen binding layout" );
+		return false;
+	}
+
+	if ( nullptr == screenBindingSet )
+	{
+		Console->Error( "RenderFrontend: Failed to create screen binding set" );
+		return false;
+	}
 
 	auto rasterState = nvrhi::RasterState()
 		.setCullNone()
