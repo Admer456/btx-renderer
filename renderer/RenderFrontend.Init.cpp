@@ -117,15 +117,10 @@ bool RenderFrontend::CreateMainFramebuffer()
 
 	const auto printFramebufferInfo = []( const nvrhi::FramebufferInfo& fbInfo, const char* name )
 	{
-		const char* framebufferMessage = 
-R"(Framebuffer '%s'
-  * Size:          %ux%u
-  * Colour format: %s
-  * Depth format:  %s)";
-
-		Console->DPrint( format( framebufferMessage, name, fbInfo.width, fbInfo.height,
-			nvrhi::utils::FormatToString( fbInfo.colorFormats[0] ),
-			nvrhi::utils::FormatToString( fbInfo.depthFormat ) ), 1 );
+		Console->DPrint( format( "Framebuffer '%s' info: ", name ), 1 );
+		Console->DPrint( format( "  * Size:          %ux%u ", fbInfo.width, fbInfo.height ), 1);
+		Console->DPrint( format( "  * Colour format: %s ", nvrhi::utils::FormatToString( fbInfo.colorFormats[0] ) ), 1 );
+		Console->DPrint( format( "  * Depth format:  %s ", nvrhi::utils::FormatToString( fbInfo.depthFormat ) ), 1 );
 	};
 
 	printFramebufferInfo( mainFramebuffer->getFramebufferInfo(), "Main framebuffer" );
