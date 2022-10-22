@@ -5,6 +5,7 @@
 #include "RenderFrontend.hpp"
 #include "Entity.hpp"
 #include "View.hpp"
+#include <nvrhi/utils.h>
 
 static PluginRegistry Registry( EngineVersion );
 
@@ -57,9 +58,35 @@ IBackend* RenderFrontend::GetBackend() const
 	return backend;
 }
 
+// This is gonna be rewritten very soon,
+// the current API needs modifications too
 void RenderFrontend::RenderView( const IView* view )
 {
-	// TODO: Implement
+	const Vec4 clearColour = view->GetDesc().clearColour;
+
+	auto graphicsState = nvrhi::GraphicsState()
+		.addBindingSet( screenBindingSet )
+		.setPipeline( screenPipeline )
+		.setFramebuffer( backendManager->GetCurrentFramebuffer() );
+	graphicsState.viewport.addViewportAndScissorRect( { 1024.0f, 768.0f } );
+
+	// TODO: backendManager->BeginFrame and Present should be moved elsewhere
+	// IRenderFrontend::BeginFrame and IRenderFrontend::Present are required
+	backendManager->BeginFrame();
+	renderCommands->open();
+
+	renderCommands->setGraphicsState( graphicsState );
+
+	// TODO: if a view is considered to be the "main" one, render its FB into the backbuffer like below
+	// Otherwise, just render into its FB
+	// This also implies render views need to have their own framebuffers
+	nvrhi::utils::ClearColorAttachment( renderCommands, backendManager->GetCurrentFramebuffer(), 0, nvrhi::Color( 0.15f ) );
+
+	renderCommands->close();
+	backend->executeCommandList( renderCommands );
+
+	backendManager->Present();
+	backend->runGarbageCollection();
 }
 
 void RenderFrontend::DebugLine( adm::Vec3 start, adm::Vec3 end, adm::Vec3 colour, float life, bool depthTest )
