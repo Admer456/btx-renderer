@@ -29,6 +29,12 @@ bool RenderFrontend::PostInit( RenderBackend* renderBackend, IWindow* mainWindow
 		return false;
 	}
 
+	if ( !CreateScreenVertexBuffer() )
+	{
+		Console->Error( "RenderFrontend::PostInit: Failed to create screen quad" );
+		return false;
+	}
+
 	return true;
 }
 
@@ -129,7 +135,36 @@ bool RenderFrontend::CreateMainFramebuffer()
 		Console->DPrint( format( "  * Depth format:  %s ", nvrhi::utils::FormatToString( fbInfo.depthFormat ) ), 1 );
 	};
 
+	printFramebufferInfo( backendManager->GetCurrentFramebuffer()->getFramebufferInfo(), "Screen backbuffer" );
 	printFramebufferInfo( mainFramebuffer->getFramebufferInfo(), "Main framebuffer" );
 	
 	return true;
+}
+
+bool RenderFrontend::CreateScreenVertexBuffer()
+{
+	// Format: XY UV
+	const Vector<float> ScreenQuadVertexData =
+	{
+		-1.0f, -1.0f,
+		0.0f, 1.0f,
+
+		1.0f, -1.0f,
+		1.0f, 1.0f,
+
+		1.0f, 1.0f,
+		1.0f, 0.0f,
+
+		-1.0f, 1.0f,
+		0.0f, 0.0f
+	};
+
+	const Vector<uint32_t> ScreenQuadIndexData =
+	{
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	screenIndexBuffer = CreateIndexBuffer( ScreenQuadIndexData );
+	screenVertexBuffer = CreateVertexBuffer( ScreenQuadVertexData );
 }

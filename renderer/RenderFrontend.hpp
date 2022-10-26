@@ -72,6 +72,7 @@ private: // Internals
 	// RenderFrontend.Init.cpp
 	bool					CreateCommandLists();
 	bool					CreateMainFramebuffer();
+	bool					CreateScreenVertexBuffer(); // screen quad
 
 	// RenderFrontend.Model.cpp
 	bool					ValidateModelAsset( const Assets::IModel* modelAsset );
