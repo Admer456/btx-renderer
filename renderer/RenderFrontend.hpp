@@ -21,6 +21,9 @@ public: // Render frontend API
 	void					Update() override;
 	IBackend*				GetBackend() const override;
 
+	void					BeginFrame() override;
+	void					EndFrameAndPresent() override;
+
 	void					RenderView( const IView* view ) override;
 	
 	void					DebugLine( Vec3 start, Vec3 end, Vec3 colour, float life, bool depthTest ) override;
@@ -111,6 +114,8 @@ private:
 	// The minimum needed to render a basic fullscreen quad
 	// 2D vector for positions, and another 2D vector for texture coords
 	nvrhi::InputLayoutHandle screenVertexLayout{ nullptr };
+	nvrhi::BufferHandle		screenVertexBuffer{ nullptr };
+	nvrhi::BufferHandle		screenIndexBuffer{ nullptr };
 	// 1 texture sampler, 1 colour attachment, 1 depth attachment
 	nvrhi::BindingLayoutHandle screenBindingLayout{ nullptr };
 	nvrhi::BindingSetHandle screenBindingSet{ nullptr };
