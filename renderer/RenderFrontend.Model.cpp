@@ -129,7 +129,7 @@ bool RenderFrontend::CreateVertexBuffer( uint32_t face, const Assets::RenderData
 
 	transferCommands->open();
 	transferCommands->beginTrackingBufferState( vertexBuffer, nvrhi::ResourceStates::CopyDest );
-	transferCommands->writeBuffer( vertexBuffer, segment.rawData.data(), segment.rawData.size() );
+	transferCommands->writeBuffer( vertexBuffer, segment.rawData.data(), desc.byteSize );
 	transferCommands->setPermanentBufferState( vertexBuffer, nvrhi::ResourceStates::VertexBuffer );
 	transferCommands->close();
 
