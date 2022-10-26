@@ -76,6 +76,7 @@ private: // Internals
 	// RenderFrontend.Model.cpp
 	bool					ValidateModelAsset( const Assets::IModel* modelAsset );
 	nvrhi::BufferHandle		CreateIndexBuffer( Vector<uint32_t> indices );
+	nvrhi::BufferHandle		CreateVertexBuffer( const Vector<float>& rawVertexData );
 	bool					CreateVertexBuffer( uint32_t face, const Assets::RenderData::VertexDataSegment& segment, VertexBufferMap& outVertexBuffers );
 	bool					CreateBuffersFromVertexData( uint32_t face, const Assets::RenderData::VertexData& data, Vector<nvrhi::BufferHandle>& outIndexBuffers, VertexBufferMap& outVertexBuffers );
 	IModel*					BuildModelFromAsset( const Assets::IModel* modelAsset );

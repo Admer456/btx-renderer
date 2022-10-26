@@ -111,6 +111,30 @@ static const char* VertexSegmentToString( Assets::RenderData::VertexAttributeTyp
 	return "UNKNOWN";
 }
 
+nvrhi::BufferHandle RenderFrontend::CreateVertexBuffer( const Vector<float>& rawVertexData )
+{
+	auto desc = nvrhi::BufferDesc()
+		.setByteSize( rawVertexData.size() * sizeof( float ) )
+		.setIsVertexBuffer( true )
+		.setInitialState( nvrhi::ResourceStates::CopyDest );
+
+	nvrhi::BufferHandle vertexBuffer = backend->createBuffer( desc );
+	if ( nullptr == vertexBuffer )
+	{
+		return nullptr;
+	}
+
+	transferCommands->open();
+	transferCommands->beginTrackingBufferState( vertexBuffer, nvrhi::ResourceStates::CopyDest );
+	transferCommands->writeBuffer( vertexBuffer, rawVertexData.data(), desc.byteSize );
+	transferCommands->setPermanentBufferState( vertexBuffer, nvrhi::ResourceStates::VertexBuffer );
+	transferCommands->close();
+
+	backend->executeCommandList( transferCommands, nvrhi::CommandQueue::Graphics );
+
+	return vertexBuffer;
+}
+
 bool RenderFrontend::CreateVertexBuffer( uint32_t face, const Assets::RenderData::VertexDataSegment& segment, VertexBufferMap& outVertexBuffers )
 {
 	const VertexMapKey key = { face, segment.type };
