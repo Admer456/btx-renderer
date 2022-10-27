@@ -63,6 +63,8 @@ void RenderFrontend::BeginFrame()
 	backendManager->BeginFrame();
 }
 
+// Renders a fullscreen quad into the backbuffer
+// The main framebuffer is mapped onto this quad
 void RenderFrontend::EndFrameAndPresent()
 {
 	const nvrhi::Viewport windowViewport = { window->GetSize().x, window->GetSize().y };
@@ -89,6 +91,8 @@ void RenderFrontend::EndFrameAndPresent()
 	backend->runGarbageCollection();
 }
 
+// Currently this just clears the render view, doesn't render any entities into it
+// Must do that soon and give render views their own framebuffers
 void RenderFrontend::RenderView( const IView* view )
 {
 	const Vec4 c = view->GetDesc().clearColour;
