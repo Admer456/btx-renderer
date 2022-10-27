@@ -59,7 +59,7 @@ static nvrhi::Format WindowFormatToNvrhi( WindowVideoFormat format )
 	case WindowVideoFormat::SRGBA8: return nvrhi::Format::SRGBA8_UNORM;
 	case WindowVideoFormat::SBGRA8: return nvrhi::Format::SBGRA8_UNORM;
 	case WindowVideoFormat::RGBA8: return nvrhi::Format::RGBA8_UNORM;
-	case WindowVideoFormat::BGRA8: return nvrhi::Format::RGBA8_UNORM;
+	case WindowVideoFormat::BGRA8: return nvrhi::Format::BGRA8_UNORM;
 	}
 
 	return nvrhi::Format::UNKNOWN;
