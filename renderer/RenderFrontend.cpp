@@ -109,6 +109,8 @@ void RenderFrontend::RenderView( const IView* view )
 	renderCommands->clearDepthStencilTexture( mainFramebufferDepth, nvrhi::AllSubresources, true, 0.0f, false, 0 );
 	//nvrhi::utils::ClearDepthStencilAttachment( renderCommands, mainFramebuffer, 0.0f, 0 );
 	renderCommands->close();
+
+	backend->executeCommandList( renderCommands );
 }
 
 void RenderFrontend::DebugLine( adm::Vec3 start, adm::Vec3 end, adm::Vec3 colour, float life, bool depthTest )
