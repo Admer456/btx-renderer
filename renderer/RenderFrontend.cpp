@@ -94,20 +94,9 @@ void RenderFrontend::RenderView( const IView* view )
 	const Vec4 c = view->GetDesc().clearColour;
 	const nvrhi::Color clearColour = { c.m.x, c.m.y, c.m.z, c.m.w };
 
-	const nvrhi::Viewport windowViewport = { window->GetSize().x, window->GetSize().y };
-	auto graphicsState = nvrhi::GraphicsState()
-		.addBindingSet( screenBindingSet )
-		.addVertexBuffer( { screenVertexBuffer, 0, 0 } )
-		.setIndexBuffer( { screenIndexBuffer, nvrhi::Format::R32_UINT, 0 } )
-		.setFramebuffer( backendManager->GetCurrentFramebuffer() )
-		.setPipeline( screenPipeline );
-	graphicsState.viewport.addViewportAndScissorRect( windowViewport );
-
 	renderCommands->open();
-	renderCommands->setGraphicsState( graphicsState );
-	nvrhi::utils::ClearColorAttachment( renderCommands, mainFramebuffer, 0, clearColour );
+	renderCommands->clearTextureFloat( mainFramebufferColour, nvrhi::AllSubresources, clearColour );
 	renderCommands->clearDepthStencilTexture( mainFramebufferDepth, nvrhi::AllSubresources, true, 0.0f, false, 0 );
-	//nvrhi::utils::ClearDepthStencilAttachment( renderCommands, mainFramebuffer, 0.0f, 0 );
 	renderCommands->close();
 
 	backend->executeCommandList( renderCommands );
