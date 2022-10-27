@@ -167,4 +167,6 @@ bool RenderFrontend::CreateScreenVertexBuffer()
 
 	screenIndexBuffer = CreateIndexBuffer( ScreenQuadIndexData );
 	screenVertexBuffer = CreateVertexBuffer( ScreenQuadVertexData );
+
+	return (nullptr != screenIndexBuffer) && (nullptr != screenVertexBuffer);
 }
