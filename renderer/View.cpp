@@ -4,9 +4,24 @@
 #include "Precompiled.hpp"
 #include "View.hpp"
 
-View::View( const ViewDesc& desc )
-	: desc( desc )
+View::View( const ViewDesc& desc, nvrhi::TextureHandle colour, nvrhi::TextureHandle depth, nvrhi::FramebufferHandle framebuffer )
+	: desc( desc ), colourTexture( colour ), depthTexture( depth ), framebuffer( framebuffer )
 {
+}
+
+nvrhi::IFramebuffer* View::GetFramebuffer() const
+{
+	return framebuffer;
+}
+
+nvrhi::ITexture* View::GetColourTexture() const
+{
+	return colourTexture;
+}
+
+nvrhi::ITexture* View::GetDepthTexture() const
+{
+	return depthTexture;
 }
 
 ViewDesc& View::GetDesc()
