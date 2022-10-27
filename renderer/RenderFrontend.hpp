@@ -89,6 +89,10 @@ private: // Internals
 	nvrhi::ShaderHandle		CreateComputeShader( StringView shaderPath );
 	bool					CreateMainShaders();
 	bool					CreateMainGraphicsPipelines();
+	
+	// RenderFrontend.Texture.cpp
+	std::pair<nvrhi::TextureHandle, nvrhi::TextureHandle> CreateFramebufferImagesForView( const ViewDesc& desc );
+	nvrhi::FramebufferHandle CreateFramebufferFromImages( nvrhi::ITexture* colourTexture, nvrhi::ITexture* depthTexture );
 
 private:
 	Vector<UniquePtr<IBatch>>	batches{};

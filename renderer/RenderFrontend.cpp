@@ -99,8 +99,8 @@ void RenderFrontend::RenderView( const IView* view )
 	const nvrhi::Color clearColour = { c.m.x, c.m.y, c.m.z, c.m.w };
 
 	renderCommands->open();
-	renderCommands->clearTextureFloat( mainFramebufferColour, nvrhi::AllSubresources, clearColour );
-	renderCommands->clearDepthStencilTexture( mainFramebufferDepth, nvrhi::AllSubresources, true, 0.0f, false, 0 );
+	renderCommands->clearTextureFloat( view->GetColourTexture(), nvrhi::AllSubresources, clearColour);
+	renderCommands->clearDepthStencilTexture( view->GetDepthTexture(), nvrhi::AllSubresources, true, 0.0f, false, 0);
 	renderCommands->close();
 
 	backend->executeCommandList( renderCommands );
@@ -265,7 +265,26 @@ ITexture* RenderFrontend::GetTexture( uint32_t index )
 
 IView* RenderFrontend::CreateView( const ViewDesc& desc )
 {
-	return views.emplace_back( new View( desc ) ).get();
+	auto [colourTexture, depthTexture] = CreateFramebufferImagesForView( desc );
+	if ( nullptr == colourTexture )
+	{
+		Console->Warning( "RenderFrontend::CreateView: failed to create colour attachment" );
+		return nullptr;
+	}
+	if ( nullptr == depthTexture )
+	{
+		Console->Warning( "RenderFrontend::CreateView: failed to create depth attachment" );
+		return nullptr;
+	}
+
+	nvrhi::FramebufferHandle framebuffer = CreateFramebufferFromImages( colourTexture, depthTexture );
+	if ( nullptr == framebuffer )
+	{
+		Console->Warning( "RenderFrontend::CreateView: failed to create framebuffer for view" );
+		return nullptr;
+	}
+
+	return views.emplace_back( new View( desc, colourTexture, depthTexture, framebuffer ) ).get();
 }
 
 bool RenderFrontend::DestroyView( IView* view )
