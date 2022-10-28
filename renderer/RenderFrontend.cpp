@@ -99,8 +99,16 @@ void RenderFrontend::RenderView( const IView* view )
 	const nvrhi::Color clearColour = { c.m.x, c.m.y, c.m.z, c.m.w };
 
 	renderCommands->open();
-	renderCommands->clearTextureFloat( view->GetColourTexture(), nvrhi::AllSubresources, clearColour);
-	renderCommands->clearDepthStencilTexture( view->GetDepthTexture(), nvrhi::AllSubresources, true, 0.0f, false, 0);
+	renderCommands->clearTextureFloat( view->GetColourTexture(), nvrhi::AllSubresources, clearColour );
+	renderCommands->clearDepthStencilTexture( view->GetDepthTexture(), nvrhi::AllSubresources, true, 0.0f, false, 0 );
+
+	/*
+	for ( auto& entity : entities )
+	{
+		RenderEntity( view, entity );
+	}
+	*/
+
 	renderCommands->close();
 
 	backend->executeCommandList( renderCommands );
@@ -266,14 +274,9 @@ ITexture* RenderFrontend::GetTexture( uint32_t index )
 IView* RenderFrontend::CreateView( const ViewDesc& desc )
 {
 	auto [colourTexture, depthTexture] = CreateFramebufferImagesForView( desc );
-	if ( nullptr == colourTexture )
+	if ( nullptr == colourTexture || nullptr == depthTexture )
 	{
-		Console->Warning( "RenderFrontend::CreateView: failed to create colour attachment" );
-		return nullptr;
-	}
-	if ( nullptr == depthTexture )
-	{
-		Console->Warning( "RenderFrontend::CreateView: failed to create depth attachment" );
+		Console->Warning( "RenderFrontend::CreateView: failed to create attachments" );
 		return nullptr;
 	}
 
@@ -284,7 +287,14 @@ IView* RenderFrontend::CreateView( const ViewDesc& desc )
 		return nullptr;
 	}
 
-	return views.emplace_back( new View( desc, colourTexture, depthTexture, framebuffer ) ).get();
+	nvrhi::BindingSetHandle bindingSet = CreateBindingSetForView( colourTexture, depthTexture );
+	if ( nullptr == bindingSet )
+	{
+		Console->Warning( "RenderFrontend::CreateView: failed to create binding set for view" );
+		return nullptr;
+	}
+
+	return views.emplace_back( new View( desc, colourTexture, depthTexture, framebuffer, bindingSet ) ).get();
 }
 
 bool RenderFrontend::DestroyView( IView* view )

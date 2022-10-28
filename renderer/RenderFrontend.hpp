@@ -109,9 +109,6 @@ private:
 	IBackend*				backend{ nullptr };
 
 	nvrhi::SamplerHandle	screenSampler{ nullptr };
-	nvrhi::TextureHandle	mainFramebufferColour{ nullptr };
-	nvrhi::TextureHandle	mainFramebufferDepth{ nullptr };
-	nvrhi::FramebufferHandle mainFramebuffer{ nullptr };
 
 	nvrhi::CommandListHandle transferCommands{};
 	// Later we will have multiple render commandlists,
@@ -125,7 +122,6 @@ private:
 	nvrhi::BufferHandle		screenIndexBuffer{ nullptr };
 	// 1 texture sampler, 1 colour attachment, 1 depth attachment
 	nvrhi::BindingLayoutHandle screenBindingLayout{ nullptr };
-	nvrhi::BindingSetHandle screenBindingSet{ nullptr };
 	nvrhi::ShaderHandle		screenVertexShader{ nullptr };
 	nvrhi::ShaderHandle		screenPixelShader{ nullptr };
 	nvrhi::GraphicsPipelineHandle screenPipeline{ nullptr };

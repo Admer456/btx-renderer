@@ -65,10 +65,7 @@ static nvrhi::Format WindowFormatToNvrhi( WindowVideoFormat format )
 	return nvrhi::Format::UNKNOWN;
 }
 
-// 1) create a sampler that will determine how textures are filtered (nearest, bilinear etc.)
-// 2) create a colour and depth texture for our framebuffer, so we can render our scene with depth testing
-// 2.1) the two textures will also be used as inputs for the ScreenQuad shader, so we can do post-processing
-// 3) create the framebuffers
+// Todo: cleanup since we no longer have a main framebuffer
 bool RenderFrontend::CreateMainFramebuffer()
 {
 	// Sampler
@@ -77,55 +74,6 @@ bool RenderFrontend::CreateMainFramebuffer()
 		.setAllAddressModes( nvrhi::SamplerAddressMode::Wrap );
 
 	screenSampler = backend->createSampler( textureSampler );
-
-	using RStates = nvrhi::ResourceStates;
-	const RStates ColourBufferStates = RStates::RenderTarget;
-	const RStates DepthBufferStates = RStates::DepthWrite;
-
-	// Colour and depth attachment for the framebuffer
-	auto colourAttachmentDesc = nvrhi::TextureDesc()
-		.setWidth( window->GetSize().x )
-		.setHeight( window->GetSize().y )
-		.setFormat( WindowFormatToNvrhi( window->GetVideoMode().format ) )
-		.setDimension( nvrhi::TextureDimension::Texture2D )
-		.setKeepInitialState( true )
-		.setInitialState( ColourBufferStates )
-		.setIsRenderTarget( true )
-		.setDebugName( "Colour attachment image" );
-
-	mainFramebufferColour = backend->createTexture( colourAttachmentDesc );
-	if ( nullptr == mainFramebufferColour )
-	{
-		Console->Error( "Failed to create main framebuffer's colour component" );
-		return false;
-	}
-	
-	auto depthAttachmentDesc = colourAttachmentDesc
-		.setFormat( (backend->getGraphicsAPI() == nvrhi::GraphicsAPI::D3D11) ? nvrhi::Format::D24S8 : nvrhi::Format::D32)
-		.setDimension( nvrhi::TextureDimension::Texture2D )
-		.setInitialState( DepthBufferStates )
-		.setDebugName( "Depth attachment image" );
-
-	mainFramebufferDepth = backend->createTexture( depthAttachmentDesc );
-	if ( nullptr == mainFramebufferDepth )
-	{
-		Console->Error( "Failed to create main framebuffer's depth component" );
-		return false;
-	}
-
-	// ==========================================================================================================
-	// FRAMEBUFFER CREATION
-	// ==========================================================================================================
-	auto mainFramebufferDesc = nvrhi::FramebufferDesc()
-		.addColorAttachment( mainFramebufferColour )
-		.setDepthAttachment( mainFramebufferDepth );
-
-	mainFramebuffer = backend->createFramebuffer( mainFramebufferDesc );
-	if ( nullptr == mainFramebuffer )
-	{
-		Console->Error( "Failed to create main framebuffer" );
-		return false;
-	}
 
 	const auto printFramebufferInfo = []( const nvrhi::FramebufferInfo& fbInfo, const char* name )
 	{
@@ -136,7 +84,6 @@ bool RenderFrontend::CreateMainFramebuffer()
 	};
 
 	printFramebufferInfo( backendManager->GetCurrentFramebuffer()->getFramebufferInfo(), "Screen backbuffer" );
-	printFramebufferInfo( mainFramebuffer->getFramebufferInfo(), "Main framebuffer" );
 	
 	return true;
 }

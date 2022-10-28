@@ -151,25 +151,16 @@ bool RenderFrontend::CreateMainGraphicsPipelines()
 	};
 	screenVertexLayout = backend->createInputLayout( vertexLayoutDesc, 2U, screenVertexShader );
 
-	nvrhi::BindingSetDesc setDesc;
-	setDesc.bindings =
-	{
-		nvrhi::BindingSetItem::Texture_SRV( 0, mainFramebufferColour ),
-		nvrhi::BindingSetItem::Texture_SRV( 1, mainFramebufferDepth ),
-		nvrhi::BindingSetItem::Sampler( 0, screenSampler )
-	};
-	nvrhi::utils::CreateBindingSetAndLayout( backend, nvrhi::ShaderType::Vertex | nvrhi::ShaderType::Pixel, 0,
-		setDesc, screenBindingLayout, screenBindingSet );
+	auto layoutDesc = nvrhi::BindingLayoutDesc()
+		.setVisibility( nvrhi::ShaderType::Vertex | nvrhi::ShaderType::Pixel )
+		.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
+		.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )
+		.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );
 
+	screenBindingLayout = backend->createBindingLayout( layoutDesc );
 	if ( nullptr == screenBindingLayout )
 	{
 		Console->Error( "RenderFrontend: Failed to create screen binding layout" );
-		return false;
-	}
-
-	if ( nullptr == screenBindingSet )
-	{
-		Console->Error( "RenderFrontend: Failed to create screen binding set" );
 		return false;
 	}
 
