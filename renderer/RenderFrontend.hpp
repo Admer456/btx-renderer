@@ -93,6 +93,7 @@ private: // Internals
 	// RenderFrontend.Texture.cpp
 	std::pair<nvrhi::TextureHandle, nvrhi::TextureHandle> CreateFramebufferImagesForView( const ViewDesc& desc );
 	nvrhi::FramebufferHandle CreateFramebufferFromImages( nvrhi::ITexture* colourTexture, nvrhi::ITexture* depthTexture );
+	nvrhi::BindingSetHandle CreateBindingSetForView( nvrhi::TextureHandle colourTexture, nvrhi::TextureHandle depthTexture );
 
 private:
 	Vector<UniquePtr<IBatch>>	batches{};
