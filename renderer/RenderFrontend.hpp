@@ -22,7 +22,7 @@ public: // Render frontend API
 	IBackend*				GetBackend() const override;
 
 	void					BeginFrame() override;
-	void					EndFrameAndPresent() override;
+	void					EndFrameAndPresent( const IView* view ) override;
 
 	void					RenderView( const IView* view ) override;
 	

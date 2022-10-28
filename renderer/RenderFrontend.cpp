@@ -65,11 +65,11 @@ void RenderFrontend::BeginFrame()
 
 // Renders a fullscreen quad into the backbuffer
 // The main framebuffer is mapped onto this quad
-void RenderFrontend::EndFrameAndPresent()
+void RenderFrontend::EndFrameAndPresent( const IView* view )
 {
 	const nvrhi::Viewport windowViewport = { window->GetSize().x, window->GetSize().y };
 	auto graphicsState = nvrhi::GraphicsState()
-		.addBindingSet( screenBindingSet )
+		.addBindingSet( view->GetBindingSet() )
 		.addVertexBuffer( { screenVertexBuffer, 0, 0 } )
 		.setIndexBuffer( { screenIndexBuffer, nvrhi::Format::R32_UINT, 0 } )
 		.setFramebuffer( backendManager->GetCurrentFramebuffer() )
