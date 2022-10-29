@@ -7,6 +7,21 @@
 
 class RenderFrontend : public IRenderFrontend
 {
+public: // Data structures for binding sets
+	struct ViewFrameData
+	{
+		Mat4 viewMatrix;
+		Mat4 projectionMatrix;
+		float time;
+	};
+
+	struct EntityData
+	{
+		Mat4 modelMatrix;
+		Vec4 shaderParametersA;
+		Vec4 shaderParametersB;
+	};
+
 public: // Plugin API
 	bool					Init( const EngineAPI& api ) override;
 	void					Shutdown() override;
