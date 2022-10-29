@@ -196,6 +196,8 @@ bool RenderFrontend::CreateBuffersFromVertexData( uint32_t face, const Assets::R
 
 IModel* RenderFrontend::BuildModelFromAsset( const Assets::IModel* modelAsset )
 {
+	Vector<size_t> indexCountPerFace;
+	Vector<size_t> vertexCountPerFace;
 	Vector<nvrhi::BufferHandle> indexBuffers;
 	VertexBufferMap vertexBuffers;
 
@@ -211,15 +213,21 @@ IModel* RenderFrontend::BuildModelFromAsset( const Assets::IModel* modelAsset )
 			{
 				Console->Warning( format( "RenderFrontend: failed to build vertex buffers for model '%', mesh '%s', face %i. Part(s) of the model will not be visible!",
 					modelAsset->GetName().data(), mesh.name.data(), faceId ) );
+				continue;
 			}
+
+			indexCountPerFace.push_back( face.data.vertexIndices.size() );
+			vertexCountPerFace.push_back( face.data.vertexData[0].GetNumVertices() );
 		}
 	}
 
-	if ( indexBuffers.empty() || vertexBuffers.empty() )
+	if ( indexBuffers.empty() || vertexBuffers.empty() || vertexCountPerFace.empty() || indexCountPerFace.empty() )
 	{
 		Console->Error( format( "RenderFrontend: could not upload any model data to the GPU for model '%s'", modelAsset->GetName().data() ) );
 		return nullptr;
 	}
 
-	return new Model( modelAsset, std::move( indexBuffers ), std::move( vertexBuffers ) );
+	return new Model( modelAsset,
+		std::move( indexBuffers ), std::move( vertexBuffers ),
+		std::move( indexCountPerFace ), std::move( vertexCountPerFace ) );
 }
