@@ -44,11 +44,12 @@ void main_vs(
 	out float3 outColour : COLOR
 )
 {
-	float4x4 finalMatrix = mul( entityMatrix, mul( viewMatrix, projectionMatrix ) );
-	float4 transformedPos = mul( float4( inPosition, 1.0 ), finalMatrix );
-	float4 transformedNormal = mul( float4( inNormal, 0.0 ), entityMatrix );
+	//float4x4 finalMatrix = mul( gEntityMatrix, mul( gViewMatrix, gProjectionMatrix ) );
+	//float4 transformedPos = mul( float4( inPosition, 1.0 ), finalMatrix );
+	//float4 transformedNormal = mul( float4( inNormal, 0.0 ), gEntityMatrix );
 
-	outPosition = transformedPos;
+	//outPosition = transformedPos;
+	outPosition = float4( inPosition, 1.0 );
 	outTexcoords = inTexcoords;
 	outColour = inColour;
 	//outNormal = transformedNormal.xyz;
@@ -73,8 +74,9 @@ void main_ps(
 	out float4 outColour : SV_TARGET0
 )
 {
-	outColour.rgb = float3( 1.0, 1.0, 1.0 );
-	outColour.rgb = diffuseTexture.Sample( diffuseSampler, inTexcoords ).rgb;
-	outColour.rgb *= HalfLambert( inNormal, float3( 20.0, 40.0, 60.0 ) ); // Fake light source
+	//outColour.rgb = float3( 1.0, 1.0, 1.0 );
+	outColour.rgb = inColour;
+	//outColour.rgb = diffuseTexture.Sample( diffuseSampler, inTexcoords ).rgb;
+	//outColour.rgb *= HalfLambert( inNormal, float3( 20.0, 40.0, 60.0 ) ); // Fake light source
 	outColour.a = 1.0;
 }
