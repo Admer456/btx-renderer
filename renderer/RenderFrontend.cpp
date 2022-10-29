@@ -100,7 +100,7 @@ void RenderFrontend::RenderView( const IView* view )
 
 	renderCommands->open();
 	renderCommands->clearTextureFloat( view->GetColourTexture(), nvrhi::AllSubresources, clearColour );
-	renderCommands->clearDepthStencilTexture( view->GetDepthTexture(), nvrhi::AllSubresources, true, 0.0f, false, 0 );
+	renderCommands->clearDepthStencilTexture( view->GetDepthTexture(), nvrhi::AllSubresources, true, 1.0f, false, 0 );
 
 	/*
 	for ( auto& entity : entities )
