@@ -3,6 +3,7 @@
 
 #include "Precompiled.hpp"
 #include "RenderFrontend.hpp"
+#include <nvrhi/common/misc.h>
 
 bool RenderFrontend::ValidateModelAsset( const Assets::IModel* modelAsset )
 {
@@ -140,7 +141,7 @@ bool RenderFrontend::CreateVertexBuffer( uint32_t face, const Assets::RenderData
 	const VertexMapKey key = { face, segment.type };
 
 	auto desc = nvrhi::BufferDesc()
-		.setByteSize( segment.rawData.size() )
+		.setByteSize( nvrhi::align( segment.rawData.size(), 4ULL ) ) // Modern GAPIs do not like data that isn't aligned to 4 bytes
 		.setIsVertexBuffer( true )
 		.setInitialState( nvrhi::ResourceStates::CopyDest );
 
