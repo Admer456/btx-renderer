@@ -18,26 +18,28 @@
 #endif
 // ^ these should actually be moved to an include file
 
-cbuffer GlobalBuffer : register(b0)
+cbuffer PerViewFrameBuffer : register(b0)
 {
-	float4x4 viewMatrix;
-	float4x4 projectionMatrix;
-	float time;
+	float4x4 gViewMatrix;
+	float4x4 gProjectionMatrix;
+	float gTime;
 }
 
-cbuffer RenderSurfaceBuffer : register(b1)
+cbuffer EntityBuffer : register(b1 VK_DESCRIPTOR_SET(1))
 {
-	float4x4 entityMatrix;
+	float4x4 gEntityMatrix;
+	float4 gEntityParamsA;
+	float4 gEntityParamsB;
 }
 
 void main_vs(
 	float3 inPosition : POSITION,
-	float3 inNormal : NORMAL,
+	float4 inNormal : NORMAL,
 	float2 inTexcoords : TEXCOORD,
 	float4 inColour : COLOR,
 
 	out float4 outPosition : SV_POSITION,
-	out float3 outNormal : NORMAL,
+	out float4 outNormal : NORMAL,
 	out float2 outTexcoords : TEXCOORD,
 	out float3 outColour : COLOR
 )
@@ -49,11 +51,12 @@ void main_vs(
 	outPosition = transformedPos;
 	outTexcoords = inTexcoords;
 	outColour = inColour;
-	outNormal = transformedNormal.xyz;
+	//outNormal = transformedNormal.xyz;
+	outNormal = inNormal;
 }
 
-SamplerState diffuseSampler : register(s0);
-Texture2D diffuseTexture : register(t0 VK_DESCRIPTOR_SET(1));
+//SamplerState diffuseSampler : register(s0);
+//Texture2D diffuseTexture : register(t0 VK_DESCRIPTOR_SET(1));
 
 float HalfLambert( float3 normal, float3 lightDir )
 {
@@ -63,7 +66,7 @@ float HalfLambert( float3 normal, float3 lightDir )
 
 void main_ps(
 	in float4 inPosition : SV_POSITION,
-	in float3 inNormal : NORMAL,
+	in float4 inNormal : NORMAL,
 	in float2 inTexcoords : TEXCOORD,
 	in float3 inColour : COLOR,
 
