@@ -273,7 +273,13 @@ ITexture* RenderFrontend::GetTexture( uint32_t index )
 
 IView* RenderFrontend::CreateView( const ViewDesc& desc )
 {
-	auto [colourTexture, depthTexture] = CreateFramebufferImagesForView( desc );
+	ViewDesc descModified = desc;
+	if ( desc.viewportSize.x < 0.0f || desc.viewportSize.y < 0.0f )
+	{
+		descModified.viewportSize = window->GetSize();
+	}
+
+	auto [colourTexture, depthTexture] = CreateFramebufferImagesForView( descModified );
 	if ( nullptr == colourTexture || nullptr == depthTexture )
 	{
 		Console->Warning( "RenderFrontend::CreateView: failed to create attachments" );
@@ -294,7 +300,7 @@ IView* RenderFrontend::CreateView( const ViewDesc& desc )
 		return nullptr;
 	}
 
-	return views.emplace_back( new View( desc, colourTexture, depthTexture, framebuffer, bindingSet ) ).get();
+	return views.emplace_back( new View( descModified, colourTexture, depthTexture, framebuffer, bindingSet ) ).get();
 }
 
 bool RenderFrontend::DestroyView( IView* view )
