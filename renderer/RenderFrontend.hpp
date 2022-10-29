@@ -105,6 +105,10 @@ private: // Internals
 	bool					CreateMainShaders();
 	bool					CreateMainGraphicsPipelines();
 	
+	// RenderFrontend.Render.cpp
+	bool					IsEntityVisible( const IView* view, const IEntity* entity );
+	void					RenderEntity( const IView* view, const IEntity* entity );
+
 	// RenderFrontend.Texture.cpp
 	std::pair<nvrhi::TextureHandle, nvrhi::TextureHandle> CreateFramebufferImagesForView( const ViewDesc& desc );
 	nvrhi::FramebufferHandle CreateFramebufferFromImages( nvrhi::ITexture* colourTexture, nvrhi::ITexture* depthTexture );
@@ -130,14 +134,37 @@ private:
 	// so we can do multithreaded rendering
 	nvrhi::CommandListHandle renderCommands{};
 
+	// Todo: replace with a map of vertex layouts
+	// E.g. something that could be used like GetVertexLayoutForCombo( { VA::Position, VA::Normal } );
+	// In latter iterations, when we have a material system, base materials will demand vertex layout
+	// specifications, and this is crucial for that
+	nvrhi::InputLayoutHandle entityVertexLayout{};
+	// This will also be changed once we have a material system.
+	// Each material base will have its own pipeline which uses its own shader
+	nvrhi::BindingLayoutHandle viewFrameBindingLayout{};
+	nvrhi::BindingLayoutHandle entityBindingLayout{};
+	// Look at ViewFrameData and EntityData
+	nvrhi::BufferHandle		viewDataBuffer{};
+	ViewFrameData			currentViewData;
+	nvrhi::BufferHandle		entityDataBuffer{};
+	EntityData				currentEntityData;
+	// This binding set contains the projection & view matrix. It changes per frame and per view
+	// Later on there will be a per-surface binding set too, once we have texturing and all
+	nvrhi::BindingSetHandle viewFrameBindingSet{};
+	// This binding set contains transformation data for the entity and its parameters
+	nvrhi::BindingSetHandle entityBindingSet{};
+	nvrhi::ShaderHandle entityVertexShader{};
+	nvrhi::ShaderHandle entityPixelShader{};
+	nvrhi::GraphicsPipelineHandle entityPipeline{};
+	
 	// The minimum needed to render a basic fullscreen quad
 	// 2D vector for positions, and another 2D vector for texture coords
-	nvrhi::InputLayoutHandle screenVertexLayout{ nullptr };
-	nvrhi::BufferHandle		screenVertexBuffer{ nullptr };
-	nvrhi::BufferHandle		screenIndexBuffer{ nullptr };
+	nvrhi::InputLayoutHandle screenVertexLayout{};
+	nvrhi::BufferHandle		screenVertexBuffer{};
+	nvrhi::BufferHandle		screenIndexBuffer{};
 	// 1 texture sampler, 1 colour attachment, 1 depth attachment
-	nvrhi::BindingLayoutHandle screenBindingLayout{ nullptr };
-	nvrhi::ShaderHandle		screenVertexShader{ nullptr };
-	nvrhi::ShaderHandle		screenPixelShader{ nullptr };
-	nvrhi::GraphicsPipelineHandle screenPipeline{ nullptr };
+	nvrhi::BindingLayoutHandle screenBindingLayout{};
+	nvrhi::ShaderHandle		screenVertexShader{};
+	nvrhi::ShaderHandle		screenPixelShader{};
+	nvrhi::GraphicsPipelineHandle screenPipeline{};
 };

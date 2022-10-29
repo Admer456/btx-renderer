@@ -124,6 +124,11 @@ bool RenderFrontend::CreateMainShaders()
 		return false;
 	}
 
+	if ( !CreateShaderPair( "default", entityVertexShader, entityPixelShader ) )
+	{
+		return false;
+	}
+
 	return true;
 }
 
@@ -135,69 +140,183 @@ bool RenderFrontend::CreateMainGraphicsPipelines()
 		return false;
 	}
 
-	nvrhi::VertexAttributeDesc vertexLayoutDesc[] =
 	{
-		nvrhi::VertexAttributeDesc()
-		.setName( "POSITION" )
-		.setFormat( nvrhi::Format::RG32_FLOAT )
-		.setOffset( 0 )
-		.setElementStride( sizeof( Vec2 ) * 2 ),
+		nvrhi::VertexAttributeDesc screenVertexLayoutDesc[] =
+		{
+			nvrhi::VertexAttributeDesc()
+			.setName( "POSITION" )
+			.setFormat( nvrhi::Format::RG32_FLOAT )
+			.setOffset( 0 )
+			.setElementStride( sizeof( Vec2 ) * 2 ),
 
-		nvrhi::VertexAttributeDesc()
-		.setName( "TEXCOORD" )
-		.setFormat( nvrhi::Format::RG32_FLOAT )
-		.setOffset( sizeof( Vec2 ) )
-		.setElementStride( sizeof( Vec2 ) * 2 )
-	};
-	screenVertexLayout = backend->createInputLayout( vertexLayoutDesc, 2U, screenVertexShader );
+			nvrhi::VertexAttributeDesc()
+			.setName( "TEXCOORD" )
+			.setFormat( nvrhi::Format::RG32_FLOAT )
+			.setOffset( sizeof( Vec2 ) )
+			.setElementStride( sizeof( Vec2 ) * 2 )
+		};
+		screenVertexLayout = backend->createInputLayout( screenVertexLayoutDesc, 2U, screenVertexShader );
 
-	auto layoutDesc = nvrhi::BindingLayoutDesc()
-		.setVisibility( nvrhi::ShaderType::Vertex | nvrhi::ShaderType::Pixel )
-		.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
-		.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )
-		.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );
+		auto screenBindingLayoutDesc = nvrhi::BindingLayoutDesc()
+			.setVisibility( nvrhi::ShaderType::Vertex | nvrhi::ShaderType::Pixel )
+			.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 0 ) )
+			.addItem( nvrhi::BindingLayoutItem::Texture_SRV( 1 ) )
+			.addItem( nvrhi::BindingLayoutItem::Sampler( 0 ) );
 
-	screenBindingLayout = backend->createBindingLayout( layoutDesc );
-	if ( nullptr == screenBindingLayout )
-	{
-		Console->Error( "RenderFrontend: Failed to create screen binding layout" );
-		return false;
+		screenBindingLayout = backend->createBindingLayout( screenBindingLayoutDesc );
+		if ( nullptr == screenBindingLayout )
+		{
+			Console->Error( "RenderFrontend: Failed to create screen binding layout" );
+			return false;
+		}
+
+		auto screenRasterState = nvrhi::RasterState()
+			.setCullNone()
+			.setFillSolid();
+
+		// The "screen pipeline" doesn't have depth testing, it is merely
+		// drawing images onto the screen/backbuffer which has no depth attachment
+		auto screenDepthStencilState = nvrhi::DepthStencilState()
+			.disableDepthTest()
+			.disableDepthWrite()
+			.disableStencil()
+			.setDepthFunc( nvrhi::ComparisonFunc::Less );
+
+		auto screenRenderState = nvrhi::RenderState()
+			.setRasterState( screenRasterState )
+			.setDepthStencilState( screenDepthStencilState );
+
+		auto screenPipelineDesc = nvrhi::GraphicsPipelineDesc()
+			.setVertexShader( screenVertexShader )
+			.setPixelShader( screenPixelShader )
+			.setInputLayout( screenVertexLayout )
+			.setRenderState( screenRenderState )
+			.addBindingLayout( screenBindingLayout );
+
+		// If you get errors in DX12 here, you are likely missing dxil.dll. You should have dxc.exe, dxcompiler.dll AND dxil.dll,
+		// as the 3rd one will perform shader validation/signature,
+		// and DX12 doesn't like unsigned shaders by default (you'd need to modify NVRHI to allow that)
+		screenPipeline = backend->createGraphicsPipeline( screenPipelineDesc, backendManager->GetCurrentFramebuffer() );
+
+		if ( nullptr == screenPipeline )
+		{
+			Console->Error( "RenderFrontend: Failed to create screen pipeline" );
+			return false;
+		}
 	}
 
-	auto rasterState = nvrhi::RasterState()
-		.setCullNone()
-		.setFillSolid();
-
-	// The "screen pipeline" doesn't have depth testing, it is merely
-	// drawing images onto the screen/backbuffer which has no depth attachment
-	auto depthStencilState = nvrhi::DepthStencilState()
-		.disableDepthTest()
-		.disableDepthWrite()
-		.disableStencil()
-		.setDepthFunc( nvrhi::ComparisonFunc::Less );
-
-	auto renderState = nvrhi::RenderState()
-		.setRasterState( rasterState )
-		.setDepthStencilState( depthStencilState );
-	
-	auto desc = nvrhi::GraphicsPipelineDesc()
-		.setVertexShader( screenVertexShader )
-		.setPixelShader( screenPixelShader )
-		.setInputLayout( screenVertexLayout )
-		.setRenderState( renderState )
-		.addBindingLayout( screenBindingLayout );
-
-	// If you get errors in DX12 here, you are likely missing dxil.dll. You should have dxc.exe, dxcompiler.dll AND dxil.dll,
-	// as the 3rd one will perform shader validation/signature,
-	// and DX12 doesn't like unsigned shaders by default (you'd need to modify NVRHI to allow that)
-	screenPipeline = backend->createGraphicsPipeline( desc, backendManager->GetCurrentFramebuffer() );
-
-	if ( nullptr == screenPipeline )
+	// Workaround: at loading time, we do not have a framebuffer to use to create the entity pipeline
+	// (requires a depth attachment!)
+	// So we create a temporary renderview that will have the exact framebuffer needed
+	ViewDesc temporaryViewDesc;
+	temporaryViewDesc.viewportSize = Vec2( -1.0f );
+	IView* temporaryRenderView = CreateView( temporaryViewDesc );
 	{
-		Console->Error( "RenderFrontend: Failed to create screen pipeline" );
-		return false;
-	}
+		// Todo: Figure out how to do interleaved vertex buffers
+		nvrhi::VertexAttributeDesc entityVertexLayoutDesc[] =
+		{
+			nvrhi::VertexAttributeDesc()
+			.setName( "POSITION" )
+			.setBufferIndex( 0U )
+			.setFormat( nvrhi::Format::RGB32_FLOAT )
+			.setElementStride( sizeof( Vec3 ) ),
 
-	Console->DPrint( "RenderFrontend: Successfully created core graphics pipeline!", 1 );
+			nvrhi::VertexAttributeDesc()
+			.setName( "NORMAL" )
+			.setBufferIndex( 1U )
+			.setFormat( nvrhi::Format::RGBA8_SNORM )
+			.setElementStride( sizeof( byte ) * 4 ),
+
+			nvrhi::VertexAttributeDesc()
+			.setName( "TEXCOORD" )
+			.setBufferIndex( 2U )
+			.setFormat( nvrhi::Format::RG32_FLOAT )
+			.setElementStride( sizeof( Vec2 ) ),
+
+			nvrhi::VertexAttributeDesc()
+			.setName( "COLOUR" )
+			.setBufferIndex( 3U )
+			.setFormat( nvrhi::Format::RGBA8_UNORM )
+			.setElementStride( sizeof( byte ) * 4 )
+		};
+		entityVertexLayout = backend->createInputLayout( entityVertexLayoutDesc, 4U, entityVertexShader );
+
+		auto viewFrameBindingLayoutDesc = nvrhi::BindingLayoutDesc()
+			.setVisibility( nvrhi::ShaderType::Vertex | nvrhi::ShaderType::Pixel )
+			.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 0 ) );
+		
+		viewFrameBindingLayout = backend->createBindingLayout( viewFrameBindingLayoutDesc );
+		if ( nullptr == viewFrameBindingLayout )
+		{
+			Console->Error( "RenderFrontend: Failed to create view binding layout" );
+			return false;
+		}
+
+		auto entityBindingLayoutDesc = nvrhi::BindingLayoutDesc()
+			.setVisibility( nvrhi::ShaderType::Vertex | nvrhi::ShaderType::Pixel )
+			.addItem( nvrhi::BindingLayoutItem::VolatileConstantBuffer( 1 ) );
+
+		entityBindingLayout = backend->createBindingLayout( entityBindingLayoutDesc );
+		if ( nullptr == entityBindingLayout )
+		{
+			Console->Error( "RenderFrontend: Failed to create entity binding layout" );
+			return false;
+		}
+
+		auto viewFrameSetDesc = nvrhi::BindingSetDesc()
+			.addItem( nvrhi::BindingSetItem::ConstantBuffer( 0, viewDataBuffer ) );
+		viewFrameBindingSet = backend->createBindingSet( viewFrameSetDesc, viewFrameBindingLayout );
+		if ( nullptr == viewFrameBindingSet )
+		{
+			Console->Error( "RenderFrontend: Failed to create view binding set" );
+			return false;
+		}
+
+		auto entitySetDesc = nvrhi::BindingSetDesc()
+			.addItem( nvrhi::BindingSetItem::ConstantBuffer( 1, entityDataBuffer ) );
+		entityBindingSet = backend->createBindingSet( entitySetDesc, entityBindingLayout );
+		if ( nullptr == entityBindingSet )
+		{
+			Console->Error( "RenderFrontend: Failed to create entity binding set" );
+			return false;
+		}
+
+
+		auto entityRasterState = nvrhi::RasterState()
+			.setCullNone() // Change to front after the experiment
+			.setFillSolid();
+
+		auto entityDepthStencilState = nvrhi::DepthStencilState()
+			.enableDepthTest()
+			.enableDepthWrite()
+			.disableStencil()
+			.setDepthFunc( nvrhi::ComparisonFunc::Less );
+
+		auto entityRenderState = nvrhi::RenderState()
+			.setRasterState( entityRasterState )
+			.setDepthStencilState( entityDepthStencilState );
+
+		auto entityPipelineDesc = nvrhi::GraphicsPipelineDesc()
+			.setVertexShader( entityVertexShader )
+			.setPixelShader( entityPixelShader )
+			.setInputLayout( entityVertexLayout )
+			.setRenderState( entityRenderState )
+			.addBindingLayout( viewFrameBindingLayout )
+			.addBindingLayout( entityBindingLayout );
+
+		// If you get errors in DX12 here, you are likely missing dxil.dll. You should have dxc.exe, dxcompiler.dll AND dxil.dll,
+		// as the 3rd one will perform shader validation/signature,
+		// and DX12 doesn't like unsigned shaders by default (you'd need to modify NVRHI to allow that)
+		entityPipeline = backend->createGraphicsPipeline( entityPipelineDesc, temporaryRenderView->GetFramebuffer() );
+
+		if ( nullptr == entityPipeline )
+		{
+			Console->Error( "RenderFrontend: Failed to create entity pipeline" );
+			return false;
+		}
+	}
+	DestroyView( temporaryRenderView );
+
+	Console->DPrint( "RenderFrontend: Successfully created core graphics pipelines!", 1 );
 	return true;
 }

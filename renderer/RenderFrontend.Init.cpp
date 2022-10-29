@@ -85,6 +85,12 @@ bool RenderFrontend::CreateMainFramebuffer()
 
 	printFramebufferInfo( backendManager->GetCurrentFramebuffer()->getFramebufferInfo(), "Screen backbuffer" );
 	
+	const auto& viewDataBufferDesc = nvrhi::utils::CreateVolatileConstantBufferDesc( sizeof( currentViewData ), "currentViewData", 16U );
+	viewDataBuffer = backend->createBuffer( viewDataBufferDesc );
+
+	const auto& entityDataBufferDesc = nvrhi::utils::CreateVolatileConstantBufferDesc( sizeof( currentEntityData ), "currentEntityData", 16U );
+	entityDataBuffer = backend->createBuffer( entityDataBufferDesc );
+
 	return true;
 }
 
