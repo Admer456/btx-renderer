@@ -4,11 +4,17 @@
 #include "Precompiled.hpp"
 #include "Model.hpp"
 
-Model::Model( const Assets::IModel* asset, Vector<nvrhi::BufferHandle>&& indexBuffers, VertexBufferMap&& vertexBuffers )
+Model::Model( const Assets::IModel* asset,
+	Vector<nvrhi::BufferHandle>&& indexBuffers,
+	VertexBufferMap&& vertexBuffers,
+	Vector<size_t> indexCountPerFace,
+	Vector<size_t> vertexCountPerFace )
 {
 	modelAsset = asset;
 	this->indexBuffers = std::move( indexBuffers );
 	this->vertexBuffers = std::move( vertexBuffers );
+	indexCounts = indexCountPerFace;
+	vertexCounts = vertexCountPerFace;
 }
 
 StringView Model::GetName() const
@@ -19,6 +25,16 @@ StringView Model::GetName() const
 size_t Model::GetNumFaces() const
 {
 	return indexBuffers.size();
+}
+
+size_t Model::GetNumIndices( uint32_t face ) const
+{
+	return indexCounts[face];
+}
+
+size_t Model::GetNumVertices( uint32_t face ) const
+{
+	return vertexCounts[face];
 }
 
 IBuffer* Model::GetVertexBuffer( uint32_t face, Assets::RenderData::VertexAttributeType attribute ) const

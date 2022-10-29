@@ -35,18 +35,26 @@ class Model final : public IModel
 {
 public:
 	Model() = default;
-	Model( const Assets::IModel* asset, Vector<nvrhi::BufferHandle>&& indexBuffers, VertexBufferMap&& vertexBuffers );
+	Model( const Assets::IModel* asset,
+		Vector<nvrhi::BufferHandle>&& indexBuffers,
+		VertexBufferMap&& vertexBuffers,
+		Vector<size_t> indexCountPerFace,
+		Vector<size_t> vertexCountPerFace );
 	~Model() = default;
 	
 	StringView GetName() const override;
 
 	size_t GetNumFaces() const override;
+	size_t GetNumIndices( uint32_t face ) const override;
+	size_t GetNumVertices( uint32_t face ) const override;
 	IBuffer* GetVertexBuffer( uint32_t face, Assets::RenderData::VertexAttributeType attribute ) const override;
 	IBuffer* GetIndexBuffer( uint32_t face ) const override;
 
 	const Assets::ModelDesc& GetDesc() const override;
 
 private:
+	Vector<size_t> indexCounts{};
+	Vector<size_t> vertexCounts{};
 	Vector<nvrhi::BufferHandle> indexBuffers{};
 	VertexBufferMap vertexBuffers{};
 	const Assets::IModel* modelAsset{ nullptr };
